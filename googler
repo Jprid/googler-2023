@@ -2368,7 +2368,7 @@ class GoogleParser(object):
         cw = lambda s: re.sub(r'[ \t\n\r]+', ' ', s) if s is not None else s
 
         index = 0
-        for div_g in tree.select_all(div_selector):
+        for div_g in tree.select_all('div.MjjYud'):
             if div_g.select('.hp-xpdbox'):
                 # Skip smart cards.
                 continue
@@ -2398,7 +2398,11 @@ class GoogleParser(object):
                     # As of January 15th 2021, the html class is not rc anymore, it's tF2Cxc.
                     # This approach is not very resilient to changes by Google, but it works for now.
                     # title_node, details_node, *_ = div_g.select_all('div.rc > div')
-                    title_node, details_node, *_ = div_g.select_all(title_selector)
+                    # title_node, details_node, *_ = div_g.select_all('div.tF2Cxc > div')
+                    title_node, details_node, *_ = div_g.select_all('div')
+                    # if title_node != 'style' and title_node != 'script':
+                    #     logger.debug("RESULTS: ")
+                    #     logger.debug(title_node)
                     if 'yuRUbf' not in title_node.classes:
                         logger.debug('unexpected title node class(es): expected %r, got %r',
                                      'yuRUbf', ' '.join(title_node.classes))
@@ -2406,15 +2410,13 @@ class GoogleParser(object):
                         logger.debug('unexpected details node class(es): expected %r, got %r',
                                      'IsZvec', ' '.join(details_node.classes))
                     a = title_node.select('a')
-                    h3 = a.select(h3_selector)
+                    h3 = a.select('h3')
+
                     title = h3.text
-
-                    if self.news:
-                        newstitle = title.split('.')
-                        #title = newstitle[1]
-
                     abstract_node = details_node.select('span')
                     metadata_node = details_node.select('.f, span ~ div')
+                    # logger.debug("RESULT: ")
+                    # logger.debug(abstract_node)
                 url = self.unwrap_link(a.attr('href'))
                 matched_keywords = []
                 abstract = ''
